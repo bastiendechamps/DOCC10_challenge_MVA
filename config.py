@@ -1,4 +1,5 @@
 from pathlib import Path
+import torch
 
 
 # File paths
@@ -28,3 +29,9 @@ fmax = 2.5e5
 normalize_global = True
 mean = -79.307335
 std = 6.260134
+val_ratio = 0.2
+
+
+# Model settings
+use_gpu = True
+device = torch.device("cuda" if (torch.cuda.is_available() and use_gpu) else "cpu")

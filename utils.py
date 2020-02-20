@@ -14,29 +14,40 @@ def load_labels(path):
 
 
 def load_data(n_per_class, shuffle=True):
-    """Partially load train data files by keeing the class balanced"""
+    """Partially load train data files by keeping the class balanced"""
     X = np.load(config.train_audio_path)
     y = load_labels(config.train_labels_path)
-    X_sub = []
-    y_sub = []
+    X_train, X_val = [], []
+    y_train, y_val = [], []
     for i in range(config.n_class):
         idx = y[:, i].astype(bool)
         X_i = X[idx]
         y_i = y[idx]
         if shuffle:
             perm = np.random.choice(np.arange(len(X_i)), n_per_class, replace=False)
-            X_i = X_i[perm, :]
+        else:
+            perm = np.arange(n_per_class)
 
-        X_sub.append(X_i[:n_per_class])
-        y_sub.append(y_i[:n_per_class])
+        X_i = X_i[perm, :]
+        y_i = y_i[perm, :]
 
-    X_sub = np.concatenate(X_sub, axis=0)
-    y_sub = np.concatenate(y_sub, axis=0)
+        train_idx_split = int(n_per_class * (1.0 - config.val_ratio))
+        X_train.append(X_i[:train_idx_split])
+        y_train.append(y_i[:train_idx_split])
+        X_val.append(X_i[train_idx_split:])
+        y_val.append(y_i[train_idx_split:])
 
-    return X_sub, y_sub
+    X_train = np.concatenate(X_train, axis=0)
+    y_train = np.concatenate(y_train, axis=0)
+    X_val = np.concatenate(X_val, axis=0)
+    y_val = np.concatenate(y_val, axis=0)
+
+    return X_train, y_train, X_val, y_val
 
 
 if __name__ == "__main__":
-    X, y = load_data(5, shuffle=True)
-    print(X.shape)
-    print(y)
+    X_train, y_train, X_val, y_val = load_data(10, shuffle=True)
+    print(X_train.shape)
+    print(X_val.shape)
+    print(y_train.shape)
+    print(y_val.shape)

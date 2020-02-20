@@ -4,6 +4,7 @@ import random
 import numpy as np
 import multiprocessing as mp
 from torch.utils.data import Dataset
+from torchvision.transforms import transforms
 
 from audio import audio_to_melspectrogram, normalize_melspectrograms
 from utils import load_data
@@ -13,20 +14,24 @@ import config
 N_WORKERS = mp.cpu_count()
 
 
-def get_train_data():
-    X, y = load_data(config.n_per_class, shuffle=False)
-    X = list(X)
+def get_mels_data():
+    X_train, y_train, X_val, y_val = load_data(config.n_per_class, shuffle=False)
+    X_train = list(X_train)
+    X_val = list(X_val)
 
     # Get spectrograms from audio inputs
     with mp.Pool(N_WORKERS) as pool:
-        images_list = pool.map(audio_to_melspectrogram, X)
+        images_list_train = pool.map(audio_to_melspectrogram, X_train)
+        images_list_val = pool.map(audio_to_melspectrogram, X_val)
 
-    X = np.array(images_list)
+    X_train = np.array(images_list_train)
+    X_val = np.array(images_list_val)
 
     # Normalize spectrograms
-    X = normalize_melspectrograms(X)
+    X_train = normalize_melspectrograms(X_train)
+    X_val = normalize_melspectrograms(X_val)
 
-    return X, y
+    return X_train, y_train, X_val, y_val
 
 
 def get_test_data():
@@ -49,7 +54,7 @@ class DOCC10Dataset(Dataset):
         super(DOCC10Dataset, self).__init__()
         self.mels = mels
         self.labels = y
-        self.transforms = transform
+        self.transforms = transforms
 
     def __len__(self):
         return len(self.mels)
@@ -66,4 +71,10 @@ class DOCC10Dataset(Dataset):
 
 
 if __name__ == "__main__":
-    X, y = get_train_data()
+    X, y, _, _ = get_mels_data()
+
+    transforms = transforms.Compose([transforms.ToTensor()])
+    dataset = DOCC10Dataset(X, y, transforms=transforms)
+
+    print(len(dataset))
+    print(dataset[0][0].size())
