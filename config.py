@@ -8,6 +8,7 @@ test_path = Path("data/DOCC10_test/")
 train_audio_path = train_path / "DOCC10_Xtrain.npy"
 train_labels_path = train_path / "DOCC10_Ytrain.csv"
 test_audio_path = test_path / "DOCC10_Xtest.npy"
+submission_path = "data/submissions/"
 
 classes = ["UDA", "GG", "GMA", "LA", "UDB", "ZC", "ME", "SSP", "PM", "MB"]
 class2id = dict(zip(classes, range(len(classes))))
@@ -35,3 +36,4 @@ val_ratio = 0.2
 # Model settings
 use_gpu = True
 device = torch.device("cuda" if (torch.cuda.is_available() and use_gpu) else "cpu")
+model_path = "models/"
