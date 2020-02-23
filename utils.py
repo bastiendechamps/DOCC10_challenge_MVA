@@ -3,12 +3,20 @@ import numpy as np
 import config
 
 
-def load_labels(path):
+def load_labels_one_hot(path):
     """Load the labels in a one hot encoded np.array format."""
     df_y = pd.read_csv(path, index_col=0).values.flatten()
     labels = np.zeros((len(df_y), config.n_class))
     for i in range(len(df_y)):
         labels[i, config.class2id[df_y[i]]] = 1.0
+
+    return labels
+
+
+def load_labels(path):
+    """Load the labels in a one hot encoded np.array format."""
+    df_y = pd.read_csv(path, index_col=0).values.flatten()
+    labels = np.array([config.class2id[df_y[i]] for i in range(len(df_y))]).astype(int)
 
     return labels
 
@@ -20,7 +28,7 @@ def load_data(n_per_class, shuffle=True):
     X_train, X_val = [], []
     y_train, y_val = [], []
     for i in range(config.n_class):
-        idx = y[:, i].astype(bool)
+        idx = np.where(y == i)
         X_i = X[idx]
         y_i = y[idx]
         if shuffle:
@@ -29,7 +37,7 @@ def load_data(n_per_class, shuffle=True):
             perm = np.arange(n_per_class)
 
         X_i = X_i[perm, :]
-        y_i = y_i[perm, :]
+        y_i = y_i[perm]
 
         train_idx_split = int(n_per_class * (1.0 - config.val_ratio))
         X_train.append(X_i[:train_idx_split])
@@ -38,9 +46,9 @@ def load_data(n_per_class, shuffle=True):
         y_val.append(y_i[train_idx_split:])
 
     X_train = np.concatenate(X_train, axis=0)
-    y_train = np.concatenate(y_train, axis=0)
+    y_train = np.hstack(y_train)
     X_val = np.concatenate(X_val, axis=0)
-    y_val = np.concatenate(y_val, axis=0)
+    y_val = np.hstack(y_val)
 
     return X_train, y_train, X_val, y_val
 

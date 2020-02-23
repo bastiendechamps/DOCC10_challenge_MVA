@@ -50,11 +50,12 @@ def get_test_data():
 
 
 class DOCC10Dataset(Dataset):
-    def __init__(self, mels, y, transforms=None):
+    def __init__(self, mels, y=None, transforms=None, train=True):
         super(DOCC10Dataset, self).__init__()
         self.mels = mels
         self.labels = y
         self.transforms = transforms
+        self.train = train
 
     def __len__(self):
         return len(self.mels)
@@ -64,14 +65,19 @@ class DOCC10Dataset(Dataset):
         data = np.expand_dims(data, axis=2)
         data = self.transforms(data)
 
-        label = self.labels[idx]
-        label = torch.from_numpy(label).float()
+        if self.train:
+            label = self.labels[idx]
+            label = torch.tensor(label).long()
 
-        return data, label
+            return data, label
+
+        else:
+            return data
 
 
 if __name__ == "__main__":
     X, y, _, _ = get_mels_data()
+    print(y)
 
     transforms = transforms.Compose([transforms.ToTensor()])
     dataset = DOCC10Dataset(X, y, transforms=transforms)
