@@ -14,16 +14,16 @@ classes = ["UDA", "GG", "GMA", "LA", "UDB", "ZC", "ME", "SSP", "PM", "MB"]
 class2id = dict(zip(classes, range(len(classes))))
 n_class = len(classes)
 
-n_per_class = 1000  # Number of samples to load, for debugging
+n_per_class = 11312  # Number of samples to load, for debugging : 11312 au max
 
 
 # Audio config
-sample_rate = 512000
+sample_rate = 200000
 n_mels = 40
 n_fft = 512
 hop_length = n_fft // 4
 fmin = 1e4
-fmax = 2.5e5
+fmax = 1e5
 
 
 # Preprocessing

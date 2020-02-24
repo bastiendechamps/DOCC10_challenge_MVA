@@ -1,6 +1,22 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import config
+
+
+def show_spectrograms(X, y, classes, n_plots=5):
+    """Plot random spectrograms from the given data."""
+    fig, axes = plt.subplots(n_plots, len(classes), figsize=(10, 2 * n_plots))
+    for j in range(len(classes)):
+        X_sub = X[y == classes[j]]
+        axes[0, j].set_title(config.classes[classes[j]])
+        for i in range(n_plots):
+            idx = np.random.randint(len(X_sub))
+            mel = X_sub[idx]
+            axes[i, j].imshow(mel)
+            axes[i, j].get_xaxis().set_visible(False)
+            axes[i, j].get_yaxis().set_visible(False)
+    plt.show()
 
 
 def load_labels_one_hot(path):
@@ -55,7 +71,9 @@ def load_data(n_per_class, shuffle=True):
 
 if __name__ == "__main__":
     X_train, y_train, X_val, y_val = load_data(10, shuffle=True)
+
     print(X_train.shape)
     print(X_val.shape)
     print(y_train.shape)
     print(y_val.shape)
+

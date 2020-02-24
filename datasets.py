@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 
 from audio import audio_to_melspectrogram, normalize_melspectrograms
-from utils import load_data
+from utils import load_data, show_spectrograms
 import config
 
 
@@ -77,10 +77,12 @@ class DOCC10Dataset(Dataset):
 
 if __name__ == "__main__":
     X, y, _, _ = get_mels_data()
-    print(y)
 
     transforms = transforms.Compose([transforms.ToTensor()])
     dataset = DOCC10Dataset(X, y, transforms=transforms)
 
     print(len(dataset))
     print(dataset[0][0].size())
+
+    classes = [1, 3, 5]
+    show_spectrograms(X, y, classes, 5)

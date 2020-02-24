@@ -17,7 +17,7 @@ def train(
     criterion,
     train_dataset,
     val_dataset,
-    nepoch=50,
+    nepoch=20,
     batch_size=32,
     print_every=1,
     model_name="model",
