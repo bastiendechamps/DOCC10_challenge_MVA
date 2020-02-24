@@ -14,8 +14,8 @@ import config
 N_WORKERS = mp.cpu_count()
 
 
-def get_mels_data():
-    X_train, y_train, X_val, y_val = load_data(config.n_per_class, shuffle=False)
+def get_mels_data(shuffle=False):
+    X_train, y_train, X_val, y_val = load_data(config.n_per_class, shuffle=shuffle)
     X_train = list(X_train)
     X_val = list(X_val)
 
@@ -76,13 +76,17 @@ class DOCC10Dataset(Dataset):
 
 
 if __name__ == "__main__":
-    X, y, _, _ = get_mels_data()
+    X = get_test_data()
+    print(X.mean(), X.std())
+    # X, y, _, _ = get_mels_data()
+    # print(X.mean())
+    # print(X.std())
 
-    transforms = transforms.Compose([transforms.ToTensor()])
-    dataset = DOCC10Dataset(X, y, transforms=transforms)
+    # transforms = transforms.Compose([transforms.ToTensor()])
+    # dataset = DOCC10Dataset(X, y, transforms=transforms)
 
-    print(len(dataset))
-    print(dataset[0][0].size())
+    # print(len(dataset))
+    # print(dataset[0][0].size())
 
-    classes = [1, 3, 5]
-    show_spectrograms(X, y, classes, 5)
+    # classes = [1, 3, 8]
+    # show_spectrograms(X, y, classes, 5)

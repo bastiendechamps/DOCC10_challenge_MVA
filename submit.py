@@ -48,11 +48,11 @@ def make_submission(model, model_name, sub_name, transform=None, batch_size=32):
 
 
 if __name__ == "__main__":
-    model_name = "model"
-    sub_name = "first_sub"
+    model_name = "larger"
+    sub_name = "all_data_larger"
 
     # Initialize the model
-    model = ConvModel(10)
+    model = ConvModel(config.n_class)
 
     # make submission
     make_submission(model, model_name, sub_name)

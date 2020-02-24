@@ -19,8 +19,8 @@ n_per_class = 11312  # Number of samples to load, for debugging : 11312 au max
 
 # Audio config
 sample_rate = 200000
-n_mels = 40
-n_fft = 512
+n_mels = 64
+n_fft = 256
 hop_length = n_fft // 4
 fmin = 1e4
 fmax = 1e5
@@ -28,8 +28,8 @@ fmax = 1e5
 
 # Preprocessing
 normalize_global = True
-mean = -79.307335
-std = 6.260134
+mean = -83.680084
+std = 6.203564
 val_ratio = 0.2
 
 

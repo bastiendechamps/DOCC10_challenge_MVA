@@ -34,6 +34,7 @@ def train(
         # Train phase
         model.train()
         avg_train_loss = 0.0
+        avg_train_acc = 0.0
 
         for X, y in train_loader:
             optimizer.zero_grad()
@@ -43,6 +44,11 @@ def train(
             loss.backward()
             avg_train_loss += loss.item() / len(train_dataset)
             optimizer.step()
+
+            # Compute accuracy
+            _, pred_classes = torch.max(y_pred.cpu(), dim=1)
+            acc = (pred_classes == y.cpu()).sum().item()
+            avg_train_acc += acc / len(train_dataset)
 
         # Val phase
         model.eval()
@@ -64,7 +70,7 @@ def train(
             elapsed_time = time.time() - start
             start = time.time()
             print(
-                f"epoch [{epoch + 1}/{nepoch}]   loss {avg_train_loss:.4f}   val loss {avg_val_loss:.4f}   val acc {avg_val_acc:.4f}   time {elapsed_time:.1f}s"
+                f"epoch [{epoch + 1}/{nepoch}]   loss {avg_train_loss:.4f}   acc {avg_train_acc:.4f}   val loss {avg_val_loss:.4f}   val acc {avg_val_acc:.4f}   time {elapsed_time:.1f}s"
             )
 
         if avg_val_acc > best_acc:
@@ -76,15 +82,27 @@ def train(
 
 if __name__ == "__main__":
     # Data
-    transforms = transforms.Compose([transforms.ToTensor()])
+    print("Building spectrograms...")
+    transform = transforms.Compose([transforms.ToTensor()])
     X_train, y_train, X_val, y_val = get_mels_data()
-    train_dataset = DOCC10Dataset(X_train, y_train, transforms=transforms)
-    val_dataset = DOCC10Dataset(X_val, y_val, transforms=transforms)
+    train_dataset = DOCC10Dataset(X_train, y_train, transforms=transform)
+    val_dataset = DOCC10Dataset(X_val, y_val, transforms=transform)
 
     # Model
     model = ConvModel(num_classes=config.n_class)
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
     criterion = nn.CrossEntropyLoss()
 
     # Training
-    train(model, optimizer, criterion, train_dataset, val_dataset, 10)
+    model_name = "larger"
+    print("Training model...")
+    train(
+        model,
+        optimizer,
+        criterion,
+        train_dataset,
+        val_dataset,
+        10,
+        batch_size=32,
+        model_name=model_name,
+    )
