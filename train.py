@@ -107,12 +107,12 @@ def eval_model(model, dataset, batch_size=32):
 if __name__ == "__main__":
     # Data
     print("Building spectrograms...")
-    transform = transforms.Compose([transforms.ToTensor()])
+    # transform = transforms.Compose([transforms.ToTensor()])
     start = time.time()
     X_train, y_train, X_val, y_val = get_mels_data()
     print("done in {:.2f}s".format(time.time() - start))
-    train_dataset = DOCC10Dataset(X_train, y_train, transforms=transform)
-    val_dataset = DOCC10Dataset(X_val, y_val, transforms=transform)
+    train_dataset = DOCC10Dataset(X_train, y_train, transforms=config.train_transform)
+    val_dataset = DOCC10Dataset(X_val, y_val, transforms=config.val_transform)
 
     # Model
     model = ConvModel(num_classes=config.n_class)
