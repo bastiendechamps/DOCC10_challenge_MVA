@@ -1,5 +1,6 @@
 import time
 import os
+import numpy as np
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -56,14 +57,15 @@ def train(
 
         for X, y in val_loader:
             X, y = X.to(config.device), y.to(config.device)
-            y_pred = model(X).view(-1, config.n_class).detach()
-            loss = criterion(y_pred.float(), y.long())
-            avg_val_loss += loss.item() / len(val_dataset)
+            with torch.no_grad():
+                y_pred = model(X).view(-1, config.n_class)
+                loss = criterion(y_pred.float(), y.long())
+                avg_val_loss += loss.item() / len(val_dataset)
 
-            # Compute validation accuracy
-            _, pred_classes = torch.max(y_pred, dim=1)
-            val_acc = (pred_classes.cpu() == y.cpu()).sum().item()
-            avg_val_acc += val_acc / len(val_dataset)
+                # Compute validation accuracy
+                _, pred_classes = torch.max(y_pred, dim=1)
+                val_acc = (pred_classes.cpu() == y.cpu()).sum().item()
+                avg_val_acc += val_acc / len(val_dataset)
 
         if (epoch + 1) % print_every == 0:
             elapsed_time = time.time() - start
@@ -81,13 +83,36 @@ def train(
             )
 
 
+def eval_model(model, dataset, batch_size=32):
+    """Evaluate a model on a dataset. Return the accuracy and the probabilities."""
+    model.eval()
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    all_preds = []
+    avg_acc = 0.0
+
+    for X, y in loader:
+        X = X.to(config.device)
+        with torch.no_grad():
+            y_pred = model(X).view(-1, config.n_class)
+        all_preds.append(y_pred.cpu().numpy())
+
+        # Compute validation accuracy
+        _, pred_classes = torch.max(y_pred, dim=1)
+        acc = (pred_classes.cpu() == y).sum().item()
+        avg_acc += acc / len(dataset)
+
+    return avg_acc, np.concatenate(all_preds, axis=0)
+
+
 if __name__ == "__main__":
     # Data
     print("Building spectrograms...")
-
-    X_train, y_train, X_val, y_val = get_mels_data(shuffle=True)
-    train_dataset = DOCC10Dataset(X_train, y_train, transforms=config.train_transform)
-    val_dataset = DOCC10Dataset(X_val, y_val, transforms=config.val_transform)
+    transform = transforms.Compose([transforms.ToTensor()])
+    start = time.time()
+    X_train, y_train, X_val, y_val = get_mels_data()
+    print("done in {:.2f}s".format(time.time() - start))
+    train_dataset = DOCC10Dataset(X_train, y_train, transforms=transform)
+    val_dataset = DOCC10Dataset(X_val, y_val, transforms=transform)
 
     # Model
     model = ConvModel(num_classes=config.n_class)
@@ -95,7 +120,7 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
 
     # Training
-    model_name = "larger"
+    model_name = "test"
     print("Training model...")
     train(
         model,
@@ -107,3 +132,8 @@ if __name__ == "__main__":
         batch_size=32,
         model_name=model_name,
     )
+
+    # model.load_state_dict(torch.load("models/test.pth"))
+    # model.to(config.device)
+    # acc, _ = eval_model(model, val_dataset)
+    # print("Validation accuracy:", acc)
