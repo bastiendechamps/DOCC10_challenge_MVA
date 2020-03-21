@@ -7,11 +7,10 @@ from torch.utils.data import Dataset
 from torchvision.transforms import transforms as trfs
 
 from audio import audio_to_melspectrogram, normalize_melspectrograms, audio_to_mfcc
-from utils import load_data, show_spectrograms
+from utils import load_data, show_spectrograms, crop_center
 import config
 
 
-N_WORKERS = mp.cpu_count()
 features_func = audio_to_mfcc if config.use_mfcc else audio_to_melspectrogram
 
 
@@ -21,7 +20,7 @@ def get_mels_data(shuffle=False):
     X_val = list(X_val)
 
     # Get spectrograms from audio inputs
-    with mp.Pool(N_WORKERS) as pool:
+    with mp.Pool(config.n_workers) as pool:
         images_list_train = pool.map(features_func, X_train)
         images_list_val = pool.map(features_func, X_val)
 
@@ -38,11 +37,16 @@ def get_mels_data(shuffle=False):
 def get_test_data():
     X = list(np.load(config.test_audio_path))
 
-    # Get spectrograms from audio inputs
-    with mp.Pool(N_WORKERS) as pool:
-        images_list = pool.map(features_func, X)
+    # Center on clicks if specified
+    if config.center_on_click:
+        with mp.Pool(config.n_workers) as pool:
+            X = pool.map(crop_center, X)
 
-    X = np.array(images_list)
+    # Get spectrograms from audio inputs
+    with mp.Pool(config.n_workers) as pool:
+        X = pool.map(features_func, X)
+
+    X = np.array(X)
 
     # Normalize spectrograms
     X = normalize_melspectrograms(X)
@@ -79,14 +83,16 @@ class DOCC10Dataset(Dataset):
 
 if __name__ == "__main__":
     X, y, _, _ = get_mels_data()
+    X_test = get_test_data()
     print(X.mean())
     print(X.std())
-    print(X[0])
-    transforms = transforms.Compose([transforms.ToTensor()])
+    print(X_test.mean())
+    print(X_test.std)
+    transforms = trfs.Compose([trfs.ToTensor()])
     dataset = DOCC10Dataset(X, y, transforms=transforms)
 
-    # print(len(dataset))
-    # print(dataset[0][0].size())
+    print(len(dataset))
+    print(dataset[0][0].size())
 
-    # classes = [1, 3, 8]
-    # show_spectrograms(X, y, classes, 5)
+    classes = [8, 8, 8]
+    show_spectrograms(X, y, classes, 7)
