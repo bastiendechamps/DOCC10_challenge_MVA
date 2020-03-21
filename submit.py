@@ -44,6 +44,8 @@ def make_submission(model, model_name, sub_name, transform=None, batch_size=32):
         {"ID": list(range(len(pred_classes))), "TARGET": pred_classes},
         columns=["ID", "TARGET"],
     )
+    if not os.path.exists(config.submission_path):
+        os.makedirs(config.submission_path)
     sub.to_csv(os.path.join(config.submission_path, sub_name + ".csv"), index=False)
 
 
@@ -55,4 +57,4 @@ if __name__ == "__main__":
     model = ConvModel(config.n_class)
 
     # make submission
-    make_submission(model, model_name, sub_name)
+    make_submission(model, model_name, sub_name, transform=config.val_transform)

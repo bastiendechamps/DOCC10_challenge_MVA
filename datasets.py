@@ -4,7 +4,7 @@ import random
 import numpy as np
 import multiprocessing as mp
 from torch.utils.data import Dataset
-from torchvision.transforms import transforms
+from torchvision.transforms import transforms as trfs
 
 from audio import audio_to_melspectrogram, normalize_melspectrograms
 from utils import load_data, show_spectrograms
@@ -62,8 +62,9 @@ class DOCC10Dataset(Dataset):
 
     def __getitem__(self, idx):
         data = self.mels[idx].astype(np.float32)
-        data = np.expand_dims(data, axis=2)
-        data = self.transforms(data)
+        if self.transforms is not None:
+            data = self.transforms(data)
+            # data = data.unsqueeze(0)
 
         if self.train:
             label = self.labels[idx]
@@ -82,8 +83,8 @@ if __name__ == "__main__":
     # print(X.mean())
     # print(X.std())
 
-    # transforms = transforms.Compose([transforms.ToTensor()])
-    # dataset = DOCC10Dataset(X, y, transforms=transforms)
+    # trf = trfs.Compose([trfs.ToTensor()])
+    # dataset = DOCC10Dataset(X, y, transforms=trf)
 
     # print(len(dataset))
     # print(dataset[0][0].size())

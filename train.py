@@ -4,7 +4,6 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from torchvision import transforms
 
 import config
 from datasets import DOCC10Dataset, get_mels_data
@@ -25,7 +24,7 @@ def train(
     """Train the model."""
     model.to(config.device)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     start = time.time()
 
     best_acc = 0.0
@@ -75,6 +74,8 @@ def train(
 
         if avg_val_acc > best_acc:
             best_acc = avg_val_acc
+            if not os.path.exists(config.model_path):
+                os.makedirs(config.model_path)
             torch.save(
                 model.state_dict(), os.path.join(config.model_path, model_name + ".pth")
             )
@@ -83,10 +84,10 @@ def train(
 if __name__ == "__main__":
     # Data
     print("Building spectrograms...")
-    transform = transforms.Compose([transforms.ToTensor()])
-    X_train, y_train, X_val, y_val = get_mels_data()
-    train_dataset = DOCC10Dataset(X_train, y_train, transforms=transform)
-    val_dataset = DOCC10Dataset(X_val, y_val, transforms=transform)
+
+    X_train, y_train, X_val, y_val = get_mels_data(shuffle=True)
+    train_dataset = DOCC10Dataset(X_train, y_train, transforms=config.train_transform)
+    val_dataset = DOCC10Dataset(X_val, y_val, transforms=config.val_transform)
 
     # Model
     model = ConvModel(num_classes=config.n_class)

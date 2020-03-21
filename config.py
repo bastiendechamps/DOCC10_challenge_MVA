@@ -1,5 +1,6 @@
 from pathlib import Path
 import torch
+from torchvision import transforms
 
 
 # File paths
@@ -32,6 +33,15 @@ mean = -83.680084
 std = 6.203564
 val_ratio = 0.2
 
+# Augmentations
+# train_transform = transforms.Compose(
+#     [transforms.ToPILImage(), transforms.RandomCrop(64), transforms.ToTensor()]
+# )
+# val_transform = transforms.Compose(
+#     [transforms.ToPILImage(), transforms.CenterCrop(64), transforms.ToTensor()]
+# )
+train_transform = transforms.Compose([transforms.ToTensor()])
+val_transform = transforms.Compose([transforms.ToTensor()])
 
 # Model settings
 use_gpu = True
