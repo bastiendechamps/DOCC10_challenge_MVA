@@ -52,14 +52,15 @@ def audio_to_mfcc(audio):
 
 def normalize_melspectrograms(mels):
     if config.normalize_global:
-        return (mels - config.mean) / config.std
+        return (mels - config.mean()) / config.std()
     elif config.normalize_sample:
         axis = tuple([i + 1 for i in range(len(mels.shape) - 1)])
         return (mels - mels.mean(axis=axis, keepdims=True)) / mels.std(
             axis=axis, keepdims=True
         )
     else:
-        return (mels - mels.mean(0, keepdims=True)) / mels.std(0, keepdims=True)
+        return (mels - config.mean) / config.std
+        # return (mels - mels.mean(0, keepdims=True)) / mels.std(0, keepdims=True)
 
 
 def show_melspectrogram(mels):

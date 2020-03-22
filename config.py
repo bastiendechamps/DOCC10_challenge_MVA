@@ -1,6 +1,7 @@
 from pathlib import Path
 import torch
 from torchvision import transforms
+import multiprocessing as mp
 
 
 # File paths
@@ -15,11 +16,15 @@ classes = ["UDA", "GG", "GMA", "LA", "UDB", "ZC", "ME", "SSP", "PM", "MB"]
 class2id = dict(zip(classes, range(len(classes))))
 n_class = len(classes)
 
-n_per_class = 3000  # Number of samples to load, for debugging : 11312 au max
+n_per_class = 11312  # Number of samples to load, for debugging : 11312 au max
 
+n_workers = mp.cpu_count()
 
 # Audio config
 sample_rate = 200000
+center_on_click = True
+butter_cutoff = 10000  # Butterworth cutoff (to find position of clicks)
+center_window = 1024
 n_mels = 64
 n_mfcc = 20
 n_fft = 256
@@ -31,10 +36,10 @@ use_mfcc = False
 
 # Preprocessing
 normalize_global = False
-normalize_sample = True  # not took into account if normalize_global is True
-mean = -83.680084
-std = 6.203564
+normalize_sample = False  # not took into account if normalize_global is True
 val_ratio = 0.2
+mean = -82.70759
+std = 7.229028
 
 # Augmentations
 # train_transform = transforms.Compose(
