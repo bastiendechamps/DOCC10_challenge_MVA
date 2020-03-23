@@ -69,8 +69,6 @@ class DOCC10Dataset(Dataset):
         data = self.mels[idx].astype(np.float32)
         if self.transforms is not None:
             data = self.transforms(data)
-            # data = data.unsqueeze(0)
-
         if self.train:
             label = self.labels[idx]
             label = torch.tensor(label).long()
@@ -83,12 +81,10 @@ class DOCC10Dataset(Dataset):
 
 if __name__ == "__main__":
     X, y, _, _ = get_mels_data()
-    X_test = get_test_data()
     print(X.mean())
     print(X.std())
-    print(X_test.mean())
-    print(X_test.std)
     transforms = trfs.Compose([trfs.ToTensor()])
+    print(transforms(X[0]).shape)
     dataset = DOCC10Dataset(X, y, transforms=transforms)
 
     print(len(dataset))
