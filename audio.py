@@ -2,7 +2,7 @@ import librosa
 import librosa.display
 import matplotlib.pyplot as plt
 import numpy as np
-
+import scaleogram as scg
 import config
 
 
@@ -48,6 +48,23 @@ def audio_to_mfcc(audio):
     spectrogram = spectrogram.astype(np.float32)
 
     return spectrogram
+
+
+def audio_to_scaleogram(audio):
+    """Transform a single audio signal to scaleogram using a CWT.
+    Args:
+        - audio : 1D np.array
+    Returns:
+        - CWT coefs : 2D np.array
+    """
+    scg.set_default_wavelet(config.scaleo_wavelet)
+    time = np.arange(len(audio))
+    scales = scg.periods2scales(
+        np.arange(config.scaleo_min_period, config.scaleo_max_period)
+    )
+    cwt = scg.CWT(time, audio, scales)
+    coefs = np.abs(cwt.coefs)  # amp
+    return coefs
 
 
 def normalize_melspectrograms(mels):

@@ -86,7 +86,13 @@ def load_data(n_per_class, shuffle=True):
 
 
 def get_center(x):
-    """Find the position of the click in the raw signal."""
+    """Estimate the click temporal position
+    
+    Args:
+        - x: input 1D signal
+    Return:
+        - center: int, the click center estimation
+    """
     # Parameters
     win_size = 50
     gaussian_std = 0.5

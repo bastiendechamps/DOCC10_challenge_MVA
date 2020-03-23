@@ -32,6 +32,10 @@ hop_length = n_fft // 4
 fmin = 1e4
 fmax = 1e5
 use_mfcc = False
+scaleo_width = 2 ** 8
+scaleo_min_period = 1
+scaleo_max_period = 20
+scaleo_wavelet = "cmor1-1.5"
 
 
 # Preprocessing
