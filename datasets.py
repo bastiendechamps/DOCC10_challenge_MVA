@@ -6,12 +6,21 @@ import multiprocessing as mp
 from torch.utils.data import Dataset
 from torchvision.transforms import transforms as trfs
 
-from audio import audio_to_melspectrogram, normalize_melspectrograms, audio_to_mfcc
+from audio import (
+    audio_to_melspectrogram,
+    normalize_melspectrograms,
+    audio_to_mfcc,
+    audio_to_scaleogram,
+)
 from utils import load_data, show_spectrograms, crop_center
 import config
 
-
-features_func = audio_to_mfcc if config.use_mfcc else audio_to_melspectrogram
+if config.use_mfcc:
+    features_func = audio_to_mfcc
+elif config.use_scaleo:
+    features_func = audio_to_scaleogram
+else:
+    features_func = audio_to_melspectrogram
 
 
 def get_mels_data(shuffle=False):
@@ -90,5 +99,5 @@ if __name__ == "__main__":
     print(len(dataset))
     print(dataset[0][0].size())
 
-    classes = [8, 8, 8]
-    show_spectrograms(X, y, classes, 7)
+    classes = [1, 4, 5, 7, 8]
+    show_spectrograms(X, y, classes, 10)
